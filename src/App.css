@@ -1,0 +1,40 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+table {
+  border: 1px solid gray;
+  color: aliceblue;
+  width: 75vw;
+}
+.selectDropdown{
+  height: 3em;
+  padding: 10px;
+}
+th,
+td {
+  color: aliceblue;
+  padding: 2em;
+  border: 1px solid gray;
+}
+th {
+  text-decoration: underline;
+}
+.tableview {
+  display: flex;
+  
+  flex-direction: column;
+  width: 100%;
+  padding: 10px;
+}
+.months {
+  display: flex;
+  padding: 5px;
+  justify-content: flex-end;
+  align-items: center;
+}
+.logo {
+  padding: 1.5em;
+}
