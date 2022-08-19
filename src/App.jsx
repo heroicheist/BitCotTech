@@ -45,6 +45,8 @@ function App() {
           total_hours: `${emp.total_hours}`,
           weekday: `${emp.weekday}`,
           gender: `${emp.gender}`,
+          todaysPay:0,
+          otpay:0
         }));
       })
       .then((emp) => {
@@ -74,26 +76,30 @@ function App() {
       const month = arr[emp.date.getMonth()];
       if (month.match(regex) && emp.weekday > 1 && emp.weekday < 7) {
         if (emp.total_hours >= 8) {
+          emp.otPay = 0;
           emp.todaysPay = +emp.per_day_salary;
           return emp;
         }
         if (emp.total_hours < 8 && emp.total_hours >= 4) {
+          emp.otPay = 0;
           emp.todaysPay = +emp.per_day_salary / 2;
           return emp;
         }
         if (emp.total_hours < 4) {
+          emp.otPay = 0;
           emp.todaysPay = Number(0);
           return emp;
         }
       }
     });
-    let reducedbasic = filteredsal.reduce((a, b) => {
-      return +a + +b.todaysPay;
+    let reducedbasic = filteredsal.reduce((acc, newItem) => {
+      return +acc + +newItem.todaysPay;
     }, 0);
     setBasicSalary(reducedbasic);
   };
   //Overtime calculation
   const overTime = (value) => {
+   
     let overtimeFilter = list.filter((emp) => {
       const month = arr[emp.date.getMonth()];
       if (
@@ -115,16 +121,22 @@ function App() {
         }
       }
     });
-    let otPay = overtimeFilter.reduce((a, b) => {
-      return +a + +b.otpay;
+    let otPay = overtimeFilter.reduce((acc, newItem) => {
+      return +acc + +newItem.otpay;
     }, 0);
     setotPayment(otPay);
   };
   //Reuseable function for bonusPay
-  const reducer = (arr) => {
-    return arr.reduce((a, b) => {
-      const red = +a + +b.todaysPay;
-      return red;
+  const reducerTodayspay = (arr) => {
+    return arr.reduce((acc, newItem) => {
+      const reducedValueBasic = +acc + +newItem.todaysPay;
+      return +reducedValueBasic;
+    }, 0);
+  };
+  const reducerOt = (arr) => {
+    return arr.reduce((acc, newItem) => {
+      const reducedOt = +acc + +newItem.otpay;
+      return +reducedOt;
     }, 0);
   };
   //Bonus Calculation
@@ -135,7 +147,8 @@ function App() {
       if (
         emp.gender === "Male" &&
         month.match(regex) &&
-        emp.todaysPay !== undefined
+        emp.otpay !== undefined &&
+        emp.todaysPay !== undefined 
       ) {
         return emp;
       }
@@ -145,16 +158,23 @@ function App() {
       if (
         emp.gender === "Female" &&
         month.match(regex) &&
+        emp.otpay !== undefined &&
         emp.todaysPay !== undefined
       ) {
         return emp;
       }
     });
-    const overallSalaryMale = reducer(maleBonuses);
-    const overallSalaryFemale = reducer(femalebonuses);
-    if (overallSalaryMale < overallSalaryFemale) {
-      setBonusAmount(() => (overallSalaryMale * 1) / 100);
-    } else setBonusAmount(() => (overallSalaryFemale * 1) / 100);
+    const overallBaseSalaryMale = reducerTodayspay(maleBonuses);
+    const overallOtSalaryMale = reducerOt(maleBonuses);
+    const overallBaseSalaryFemale = reducerTodayspay(femalebonuses);
+    const overallOtSalaryFemale = reducerOt(femalebonuses);
+    console.log(overallBaseSalaryMale, overallOtSalaryMale);
+    const overallSalaryMale = +overallBaseSalaryMale + +overallOtSalaryMale;
+    const overallSalaryFemale =
+      +overallBaseSalaryFemale + +overallOtSalaryFemale;
+    if (+overallSalaryMale < +overallSalaryFemale) {
+      setBonusAmount(() => (+overallSalaryMale * 1) / 100);
+    } else setBonusAmount(() => (+overallSalaryFemale * 1) / 100);
   };
 
   //Jsx
